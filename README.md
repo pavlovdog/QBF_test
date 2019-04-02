@@ -5,13 +5,21 @@
 ```bash
 ```
 
+## TODO
+
+- Integrate Sentry
+- Move configuration to the environment
+- GoDoc
+- Docker fix
+- Read at least 1 style guide for Go :/
+
 ## Endpoints
 
 List of the endpoints, implemented in the API.
 
 ### Ping
 
-Simple as always, just test the connection
+Simple as always, just test the connection is fine.
 
 ```bash
 curl -i http://localhost:8080/ping
