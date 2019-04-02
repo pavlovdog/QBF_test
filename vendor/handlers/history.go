@@ -1,11 +1,11 @@
 package handlers
 import (
-    "github.com/go-pg/pg"
+	"github.com/jinzhu/gorm"
 	"net/http"
 	"config"
 )
 
 
-func History(database *pg.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
+func History(database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
 	
 }

@@ -8,11 +8,7 @@ type Config struct {
 }
 
 type DB struct {
-	User	string
-	Pass	string
-	Host	string
 	Name	string
-	Port	uint
 }
 
 type DataProvider struct {
@@ -48,11 +44,7 @@ func GetConfig() *Config {
 			Host: "127.0.0.1",
 		},
 		DB: &DB {
-			User: "postgres",
-			Pass: "123123",
-			Port: 5432,
-			Host: "localhost",
-			Name: "qbf",
+			Name: "qbf.db",
 		},
 	}
 }

@@ -1,14 +1,14 @@
 package handlers
 import (
-    "github.com/go-pg/pg"
+	"github.com/jinzhu/gorm"
 	"encoding/json"
 	"net/http"
 	"connector"
-	// "strconv"
-	// "models"
+	"strconv"
+	"models"
 	"config"
 	"utils"
-	"fmt"
+	// "fmt"
 )
 
 type PriceSerializer struct {
@@ -18,7 +18,7 @@ type PriceSerializer struct {
 }
 
 // Return the price for ticker in a sync mode
-func PriceSync(rl *utils.RateLimiter, database *pg.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
+func PriceSync(rl *utils.RateLimiter, database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	ticker := r.URL.Query().Get("ticker")
@@ -43,16 +43,15 @@ func PriceSync(rl *utils.RateLimiter, database *pg.DB, config *config.Config, w 
     json.NewEncoder(w).Encode(response)
 
     // Save price into the db
-    // go func() {
-    // 	floatPrice, _ := strconv.ParseFloat(price, 64)
-    // 	priceModel := models.PriceModel{floatPrice, 1}
-    // 	dberr := priceModel.SavePrice(database)
-    // 	fmt.Printf(string(dberr.Error()))
-    // }()
+    go func() {
+    	floatPrice, _ := strconv.ParseFloat(price, 64)
+    	priceModel := models.PriceModel{Price: floatPrice}
+    	priceModel.SavePrice(database)
+    }()
 }
 
 // Return the price for ticker in an async mode
-func PriceAsync(rl *utils.RateLimiter, database *pg.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
+func PriceAsync(rl *utils.RateLimiter, database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Return some dummy response
@@ -67,10 +66,9 @@ func PriceAsync(rl *utils.RateLimiter, database *pg.DB, config *config.Config, w
 		rl.WaitForRateLimitApprove()
 
 		price, _ := c.GetPrice(ticker)
-    	fmt.Printf(price)
 
-    	// floatPrice, _ := strconv.ParseFloat(price, 32)
-    	// priceModel := models.PriceModel{floatPrice, 1}
-    	// priceModel.SavePrice(database)
+    	floatPrice, _ := strconv.ParseFloat(price, 64)
+    	priceModel := models.PriceModel{Price: floatPrice}
+    	priceModel.SavePrice(database)
 	}()
 }

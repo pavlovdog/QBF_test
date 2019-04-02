@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/gorilla/mux"
-    "github.com/go-pg/pg"
-    "github.com/go-pg/pg/orm"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"handlers"
 	"models"
 	"net/http"
@@ -15,7 +15,7 @@ import (
 type App struct {
 	Router 		*mux.Router
 	Config 		*config.Config
-	Database	*pg.DB
+	Database	*gorm.DB
 	RateLimiter	*utils.RateLimiter
 }
 
@@ -46,19 +46,14 @@ func (a *App) Initialize(config *config.Config) {
 	}).Methods("GET")
 
 	// End endpoints list
-
 	// Connect to the database
-	a.Database = pg.Connect(&pg.Options{
-        User: 		a.Config.DB.User,
-        Password: 	a.Config.DB.Pass,
-        Database: 	a.Config.DB.Name,
-        Addr:		fmt.Sprintf("%s:%d", a.Config.DB.Host, a.Config.DB.Port),
-    })
+	db, err := gorm.Open("sqlite3", a.Config.DB.Name)
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-    e := createSchema(a.Database)
-    if e != nil {
-    	fmt.Printf(string(e.Error()))
-    }
+	a.Database = db
+	a.Database.AutoMigrate(&models.PriceModel{})
 
     // Initialize the rate limiter for AlphaVantage
     var r utils.RateLimiter
@@ -72,18 +67,5 @@ func (a *App) Run() {
 
     http.ListenAndServe(addr, a.Router)
 
-    defer a.Database.Close()
-}
-
-func createSchema(db *pg.DB) error {
-    for _, model := range []interface{}{(*models.PriceModel)(nil)} {
-        err := db.CreateTable(model, &orm.CreateTableOptions{
-        	IfNotExists: true,
-        })
-
-        if err != nil {
-            return err
-        }
-    }
-    return nil
+    // defer a.Database.Close()
 }
