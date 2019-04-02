@@ -15,6 +15,8 @@ type HistorySerializer struct {
 }
 
 func History(database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var h []models.PriceModel
 	database.Find(&h)
 

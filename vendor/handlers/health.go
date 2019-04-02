@@ -19,6 +19,8 @@ type HealthSerializer struct {
 // Request the amount of records in the "price_models" table and return it in a form
 // of HealthSerializer
 func Health(database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var records int
 	database.Model(&models.PriceModel{}).Where("").Count(&records)
 

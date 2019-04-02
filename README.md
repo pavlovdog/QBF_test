@@ -7,13 +7,120 @@
 
 ## Endpoints
 
+List of the endpoints, implemented in the API.
+
+### Ping
+
+Simple as always, just test the connection
+
 ```bash
+curl -i http://localhost:8080/ping
+
+HTTP/1.1 200 OK
+Date: Tue, 02 Apr 2019 10:16:37 GMT
+Content-Length: 4
+Content-Type: text/plain; charset=utf-8
+
+Pong
+```
+
+### Sync price
+
+Get the price in a sync mode. Under the hood, the HTTP request will be performed to the Alpha Vantage API. Be carefull - in case you've reached the rate limit, you'll wait a lot to receive the response.
+
+```bash
+$ curl -i http://localhost:8080/price/sync?ticker=F
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 02 Apr 2019 10:16:57 GMT
+Content-Length: 38
+
+{"price":"8.9800","ok":true,"msg":""}
+```
+
+### Async price
+
+This endpoint allows to request the price without waiting for response. As soon as the price will be received, it will be saved into the database.
+
+```bash
+$ curl -i http://localhost:8080/price/async?ticker=F
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 02 Apr 2019 10:17:11 GMT
+Content-Length: 54
+
+{"price":"","ok":true,"msg":"Processing the request"}
+```
+
+### History
+
+Returns the list of previous requests to the `price/sync` and `price/async`.
+
+```bash
+$ curl -i http://localhost:8080/history
+
+HTTP/1.1 200 OK
+Date: Tue, 02 Apr 2019 10:18:49 GMT
+Content-Length: 1004
+Content-Type: application/json
+
+{"ok":true,"msg":"","history":[{"ID":1,"CreatedAt":"2019-04-02T11:26:23.403912155+03:00","UpdatedAt":"2019-04-02T11:26:23.403912155+03:00","DeletedAt":null,"Price":8.98}]}
+
+```
+
+### Health
+
+Pretty simple endpoing - returns the list of records in the history requests list.
+
+```bash
+$ curl -i http://localhost:8080/health
+
+HTTP/1.1 200 OK
+Date: Tue, 02 Apr 2019 10:19:56 GMT
+Content-Length: 33
+Content-Type: text/plain; charset=utf-8
+
+{"records":7,"ok":true,"msg":""}
 ```
 
 ## Walkthrough
 
 ```bash
+$ tree .
+.
+├── docker-compose.yml
+├── env
+│   ├── dev.env
+│   └── prod.env
+├── main.go
+├── qbf.db
+├── README.md
+└── vendor
+    ├── app
+    │   └── app.go
+    ├── config
+    │   └── config.go
+    ├── connector
+    │   └── connector.go
+    ├── handlers
+    │   ├── health.go
+    │   ├── history.go
+    │   └── price.go
+    ├── models
+    │   └── price.go
+    └── utils
+        └── utils.go
 ```
+
+### Rate limiter
+
+Really important part, implemented in a pure Go which is pretty cool. Allows you to be sure, that the rate limit of the data provider (in our case it's Alpha Vantage) will be considered. The main part of the rate limiter (so called `executor`) perform the checks each second:
+
+1. Check that there're some pending requests
+2. Check that the RPM still not reached (otherwise pass)
+3. If it's possible - send the "allow" signal to the channel
 
 ## Used links
 
