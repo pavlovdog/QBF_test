@@ -5,9 +5,6 @@ import (
 	"config"
 )
 
-type HealthSerializer struct {
-	Ok	bool	`json:"ok"`
-}
 
 func Health(database *gorm.DB, config *config.Config, w http.ResponseWriter, r *http.Request) {
 	
