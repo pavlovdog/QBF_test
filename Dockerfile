@@ -11,4 +11,6 @@ RUN apt-get update && \
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-ENTRYPOINT ["go", "run", "main.go"]
+WORKDIR /app
+
+ENTRYPOINT ["go", "run", "/go/src/app/main.go"]

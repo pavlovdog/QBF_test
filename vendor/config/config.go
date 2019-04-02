@@ -41,7 +41,7 @@ func GetConfig() *Config {
 		},
 		Server: &Server {
 			Port: 8080,
-			Host: "127.0.0.1",
+			Host: "0.0.0.0",
 		},
 		DB: &DB {
 			Name: "qbf.db",

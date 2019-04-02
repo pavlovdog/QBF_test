@@ -11,6 +11,13 @@ app_1  | 10:39:31.876 DEBUG 002 Using rate limiter with RPM 5
 app_1  | 10:39:31.876 INFO 003 Starting server on 127.0.0.1:8080
 $ sudo docker-compose exec app curl http://localhost:8080/ping # Test call
 Pong
+$ curl http://127.0.0.1:8080/ping -i # Second way
+HTTP/1.1 200 OK
+Date: Tue, 02 Apr 2019 11:15:51 GMT
+Content-Length: 4
+Content-Type: text/plain; charset=utf-8
+
+Pong
 ```
 
 ## TODO
