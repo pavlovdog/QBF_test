@@ -3,6 +3,14 @@
 ## Setup & run
 
 ```bash
+$ sudo docker-compose up -d
+$ sudo docker-compose logs --tail 100 app # Check that everything works fine
+Attaching to qbf_test_app_1
+app_1  | 10:39:31.871 DEBUG 001 Using database qbf.db
+app_1  | 10:39:31.876 DEBUG 002 Using rate limiter with RPM 5
+app_1  | 10:39:31.876 INFO 003 Starting server on 127.0.0.1:8080
+$ sudo docker-compose exec app curl http://localhost:8080/ping # Test call
+Pong
 ```
 
 ## TODO
@@ -124,11 +132,12 @@ $ tree .
 
 ### Rate limiter
 
-Really important part, implemented in a pure Go which is pretty cool. Allows you to be sure, that the rate limit of the data provider (in our case it's Alpha Vantage) will be considered. The main part of the rate limiter (so called `executor`) perform the checks each second:
+Really important part, implemented in a pure Go which is pretty cool. Allows you to be sure, that the rate limit of the data provider (in our case it's Alpha Vantage) will be considered. The main part of the rate limiter (so called `executor`) perform the following check each second:
 
 1. Check that there're some pending requests
 2. Check that the RPM still not reached (otherwise pass)
 3. If it's possible - send the "allow" signal to the channel
+4. Some service (e.g. `price/sync` handler) will be blocked by waiting for this signal and will continue the execution after receiving this signal.
 
 ## Used links
 
